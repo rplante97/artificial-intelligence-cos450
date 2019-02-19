@@ -1,7 +1,5 @@
-;;;Globals
-(defvar world_map) ;The worlds instance name, classes depend on this being named
-(defvar agent1) ;An agent
-
+;;;show_board is in here for now, will be moved to simulator laterrrrr
+;--------------------------------------------------------------------
 ;;;Print 2D array function, some of this is taken from stack overflow
 ;;;REFACTOR
 (defun show_board (board)
@@ -19,6 +17,9 @@
     (format t "~%"))
   (format t "~4TAgent Heading: N S E W ~%"))
     ;(format t "~V:@<Agent Heading: -> ~%~>" 40) ;Dynamic centering later
+;--------------------------------------------------------------------------
+;;;Globals
+(defvar world_map) ;The worlds instance name, classes depend on this being named
 
 ;;;World class
 (defclass world ()
@@ -39,6 +40,7 @@
     :accessor agent_bearing_acc)
    (board
     :reader get_board)))
+
 
 ;Initializes a board for the world, populates agent and goal
 (defmethod initialize-instance :after ((world world) &key)
@@ -77,27 +79,3 @@
     ((equal heading 'S) (aref (get_board world_map) (+ x 1) (+ y 2)))
     ((equal heading 'E) (aref (get_board world_map) (+ x 2) (+ y 1)))
     ((equal heading 'W) (aref (get_board world_map) x (+ y 1))))))
-
-;;;Simple reflex agent time :D
-(defclass agent ()
- ((front_sensor
-   :initform (see world_map)
-   :accessor agent_front_sensor_acc)))
-
-;Quick init for when slime crashes
-(defun run ()
-  (setq world_map (make-instance 'world :size 7 :agent_bearing '(1 5 W) :goal_coordinate '(3 3)))
-  (setq agent1 (make-instance 'agent))
-  (describe agent1))
-
-
-
-;;;agent programming
-(defclass agent_program () ())
-(defclass reflex_agent (agent_program)
- ())
-;;;Basic flow
-;Simulator init
-;world init
-;agent init
-;agent program init
