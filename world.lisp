@@ -18,9 +18,12 @@
   (format t "~4TAgent Heading: N S E W ~%"))
     ;(format t "~V:@<Agent Heading: -> ~%~>" 40) ;Dynamic centering later
 ;--------------------------------------------------------------------------
-;;;Globals
-(defvar world_map) ;The worlds instance name, classes depend on this being named
-
+;;;;;About our world:
+;;;;;A 0 denotes an open space (format displays it as such)
+;;;;;A 1 denotes a wall/obstacle (format dispays it as X)
+;;;;;A 2 denotes an agent (format dispays it as A)
+;;;;;A 3 denotes the goal (format dispays it as G)
+(defvar world_map)
 ;;;World class
 (defclass world ()
   ((size
@@ -79,3 +82,38 @@
     ((equal heading 'S) (aref (get_board world_map) (+ x 1) (+ y 2)))
     ((equal heading 'E) (aref (get_board world_map) (+ x 2) (+ y 1)))
     ((equal heading 'W) (aref (get_board world_map) x (+ y 1))))))
+
+(defmethod bump ((self world))
+  ())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;Bottom comment so my neck stops hurting ;)
