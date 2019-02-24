@@ -2,7 +2,7 @@
 (defvar world_map) ;The worlds instance name, classes depend on this being named
 (defvar agent1) ;An agent
 
-;;;Print 2D array function, some of this is taken from stack overflow
+;;;Print 2D array function
 ;;;REFACTOR
 (defun show_board (board)
   (format t "~%")

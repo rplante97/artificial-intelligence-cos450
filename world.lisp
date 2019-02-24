@@ -23,7 +23,6 @@
 ;;;;;A 1 denotes a wall/obstacle (format dispays it as X)
 ;;;;;A 2 denotes an agent (format dispays it as A)
 ;;;;;A 3 denotes the goal (format dispays it as G)
-(defvar world_map)
 ;;;World class
 (defclass world ()
   ((size
@@ -42,7 +41,7 @@
     :initform '(1 1 N)
     :accessor agent_bearing_acc)
    (board
-    :reader get_board)))
+    :accessor get_board)))
 
 
 ;Initializes a board for the world, populates agent and goal
@@ -68,23 +67,10 @@
     (setf (slot-value world 'board) board)
     (show_board board)))
 
-;This function returns a list of the agents sensor values
-(defmethod see ((self world))
- (let ((x (nth 0 (agent_bearing_acc world_map)))
-       (y (nth 1 (agent_bearing_acc world_map)))
-       (heading (nth 2 (agent_bearing_acc world_map))))
-  ;;Here we have to remember the game BOARD is a matrix of size+2 X size+2
-  ;;and the bearings we receive from the world are 0 indexed at size X size
-  ;;this means when looking at the board we need to add 1 to our returned
-  ;;bearings for the true agent location. Looking is then acheived by +/-1
-  ;;on each coordinate
-  (cond ((equal heading 'N) (aref (get_board world_map) (+ x 1) y))
-    ((equal heading 'S) (aref (get_board world_map) (+ x 1) (+ y 2)))
-    ((equal heading 'E) (aref (get_board world_map) (+ x 2) (+ y 1)))
-    ((equal heading 'W) (aref (get_board world_map) x (+ y 1))))))
 
-(defmethod bump ((self world))
-  ())
+
+;;(defmethod bump ((self world))
+  ;;())
 
 
 
