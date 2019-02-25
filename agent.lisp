@@ -25,3 +25,10 @@
 ;;;simulator
 (defmethod sensor_values (agent)
   (list '((agent_front_sensor_acc) 1)))
+
+(defun reset_bump_sensors ()
+  (print "Resetting bump sensors")
+  (setf (agent_rear_bump_acc agent1) 0)
+  (setf (agent_front_bump_acc agent1) 0)
+  (setf (agent_left_bump_acc agent1) 0)
+  (setf (agent_right_bump_acc agent1) 0))

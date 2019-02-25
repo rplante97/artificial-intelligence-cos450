@@ -73,14 +73,15 @@
 ;;(defmethod bump ((self world))
   ;;())
 
-(defun update_board (old_x old_y)
+(defun update_board (old_x old_y &optional overwrite)
   (print "updating board")
   (let ((new_board (get_board world_map))
         (new_bearing (agent_bearing_acc world_map)))
     ;Populate the new agent position
     (setf (aref new_board (+ (nth 0 new_bearing) 1) (+ (nth 1 new_bearing) 1) ) 3)
     ;Get rid of the old agent position
-    (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0)
+    (if overwrite
+      (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0))
     (setf (get_board world_map) new_board)
     (show_board new_board (last new_bearing))))
 

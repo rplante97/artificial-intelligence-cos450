@@ -39,10 +39,11 @@
         (heading (last (agent_bearing_acc world_map)))
         (move_heading 'N))
     ;;;Map direction we are moving/turning to a cardinal direction
-    (cond ((or (equal action 'move) (equal action 'turn))
+    (cond ((equal action 'move)
            (cond
              ((equal direction '(forward))
-              (print "Do nothing")) ;no heading modifer needed for see
+              (print "Do nothing")
+              (setq move_heading (first heading))) ;no heading modifer needed for see
              ((equal direction '(backward))
               (print "backward!!") ;Moving backwards inverts our heading
               (cond
@@ -72,7 +73,31 @@
               (update_world move_heading)
               (update_agent))
              ((equal (see board move_heading) 1) ;The proposed move is not allowed
-              (update_agent direction)))))))
+              (update_agent direction))))
+      ((equal action 'turn)
+       (print "turn!")
+       (cond
+         ((equal direction '(left))
+          (print "left!")
+          (cond
+            ((equal heading '(N)) (setq move_heading 'W))
+            ((equal heading '(S)) (setq move_heading 'E))
+            ((equal heading '(W)) (setq move_heading 'S))
+            ((equal heading '(E)) (setq move_heading 'N))))
+         ((equal direction '(right))
+          (cond
+             ((equal heading '(N)) (setq move_heading 'E))
+             ((equal heading '(S)) (setq move_heading 'W))
+             ((equal heading '(W)) (setq move_heading 'N))
+             ((equal heading '(E)) (setq move_heading 'S)))))
+       ;Should refactor this
+       (let ((tmp (agent_bearing_acc world_map)))
+         (setq tmp (list (first tmp) (nth 1 tmp) move_heading))
+         (print tmp)
+         (setf (agent_bearing_acc world_map) tmp)
+         (update_agent)
+         (update_board (first tmp) (nth 1 tmp)))))))
+
 
 
 
@@ -92,6 +117,7 @@
   ;;this means when looking at the board we need to add 1 to our returned
   ;;bearings for the true agent location. Looking is then acheived by +/-1
   ;;on each coordinate
+  (print heading)
   (cond ((equal heading 'N) (aref (get_board world_map) (+ x 1) y))
     ((equal heading 'S) (aref board (+ x 1) (+ y 2)))
     ((equal heading 'E) (aref board (+ x 2) (+ y 1)))
@@ -100,12 +126,16 @@
 
 (defun update_agent (&optional bump)
   (print "start update agent")
+  (print bump)
   (setf (agent_front_sensor_acc agent1) (see (get_board world_map)))
   (if bump
-    (cond ((equals bump '(backward)) (setf (agent_rear_bump_acc agent1) 1))
-      ((equals bump '(forward)) (setf (agent_front_bump_acc agent1) 1))
-      ((equals bump '(left)) (setf (agent_left_bump_acc agent1) 1))
-      ((equals bump '(right)) (setf (agent_right_bump_acc agent1) 1)))))
+    (cond
+      ((equal bump '(backward)) (setf (agent_rear_bump_acc agent1) 1))
+      ((equal bump '(forward)) (setf (agent_front_bump_acc agent1) 1))
+      ((equal bump '(left)) (setf (agent_left_bump_acc agent1) 1))
+      ((equal bump '(right)) (setf (agent_right_bump_acc agent1) 1)))
+    (reset_bump_sensors)))
+
 
 
 (defun update_world (move_heading)
