@@ -72,8 +72,8 @@
               (update_world move_heading)
               (update_agent))
              ((equal (see board move_heading) 1) ;The proposed move is not allowed
-              (update_agent direction))))
-      (show_board (get_board world_map)))))
+              (update_agent direction)))))))
+
 
 
 
@@ -102,10 +102,10 @@
   (print "start update agent")
   (setf (agent_front_sensor_acc agent1) (see (get_board world_map)))
   (if bump
-    (cond ((equals bump '(backward) (setf (agent_rear_bump_acc world_map) 1)))
-      ((equals bump '(forward) (setf (agent_front_bump_acc world_map) 1)))
-      ((equals bump '(left) (setf (agent_left_bump_acc world_map) 1)))
-      ((equals bump '(right) (setf (agent_right_bump_acc world_map) 1))))))
+    (cond ((equals bump '(backward)) (setf (agent_rear_bump_acc agent1) 1))
+      ((equals bump '(forward)) (setf (agent_front_bump_acc agent1) 1))
+      ((equals bump '(left)) (setf (agent_left_bump_acc agent1) 1))
+      ((equals bump '(right)) (setf (agent_right_bump_acc agent1) 1)))))
 
 
 (defun update_world (move_heading)

@@ -23,6 +23,6 @@
   (start_simulation simulation)
   ;(update_agent)
 
-  (describe world_map)
-  (describe agent1)
+  ;(describe world_map)
+  ;(describe agent1)
   (print "Done"))
