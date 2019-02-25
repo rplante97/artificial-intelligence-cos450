@@ -13,8 +13,7 @@
         (rear_bump (agent_rear_bump_acc agent1)))
     ;Move logic
     (print "Agent program return")
-    (print '(move left))
-    (simulate_move '(move left))))
+    (simulate_move '(move forward))))
 
 
 

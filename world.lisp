@@ -2,7 +2,7 @@
 ;--------------------------------------------------------------------
 ;;;Print 2D array function, some of this is taken from stack overflow
 ;;;REFACTOR
-(defun show_board (board)
+(defun show_board (board heading)
   (format t "~%")
   (loop for i below (- (first (array-dimensions board)) 2) do
     (format t "~7T~D~0,3@T"  i))
@@ -15,7 +15,8 @@
       (let ((cell (aref board j i)))
         (format t "~[   ~; X ~; G ~; A ~]" cell)))
     (format t "~%"))
-  (format t "~4TAgent Heading: N S E W ~%"))
+  (format t "~4TAgent Heading: ~a~%" heading))
+
     ;(format t "~V:@<Agent Heading: -> ~%~>" 40) ;Dynamic centering later
 ;--------------------------------------------------------------------------
 ;;;;;About our world:
@@ -65,12 +66,26 @@
     (setf (aref board (+ (nth 0 goal_coordinate) 1) (+ (nth 1 goal_coordinate) 1)) 2) ;Goal
     (setf (aref board (+ (nth 0 agent_bearing) 1) (+ (nth 1 agent_bearing) 1) ) 3) ;Agent
     (setf (slot-value world 'board) board)
-    (show_board board)))
+    (show_board board (last agent_bearing))))
 
 
 
 ;;(defmethod bump ((self world))
   ;;())
+
+(defun update_board (old_x old_y)
+  (print "updating board")
+  (let ((new_board (get_board world_map))
+        (new_bearing (agent_bearing_acc world_map)))
+    ;Populate the new agent position
+    (setf (aref new_board (+ (nth 0 new_bearing) 1) (+ (nth 1 new_bearing) 1) ) 3)
+    ;Get rid of the old agent position
+    (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0)
+    (setf (get_board world_map) new_board)
+    (show_board new_board (last new_bearing))))
+
+
+
 
 
 

@@ -13,7 +13,7 @@
   (load "agent_program.lisp")
 
   ;;;Generates map, agent, goal, and obstacles
-  (setq world_map (make-instance 'world :size 7 :agent_bearing '(1 5 W) :goal_coordinate '(3 3)))
+  (setq world_map (make-instance 'world :size 7 :agent_bearing '(0 6 N) :goal_coordinate '(3 3)))
 
   ;;;Initalizes an agent and agent program
   (setq agent1 (make-instance 'agent))
@@ -21,6 +21,8 @@
 
   ;;;At this point, all the initialization we need to do is done. Start the sim
   (start_simulation simulation)
-  ;(simulate_move '(move forward))
+  ;(update_agent)
+
+  (describe world_map)
   (describe agent1)
   (print "Done"))

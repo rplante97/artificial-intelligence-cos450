@@ -33,40 +33,50 @@
 ;;;Move is passed as 2 element list, first element corresponds to the action
 ;;;(move, turn, nop) the second element corresponds to the direction
 (defun simulate_move (move)
-  (print "Hello")
   (let ((action (first move))
         (direction (last move))
         (board (get_board world_map))
         (heading (last (agent_bearing_acc world_map)))
         (move_heading 'N))
-    (print heading)
     ;;;Map direction we are moving/turning to a cardinal direction
     (cond ((or (equal action 'move) (equal action 'turn))
            (cond
-             ((equal direction 'forward)
+             ((equal direction '(forward))
               (print "Do nothing")) ;no heading modifer needed for see
-             ((equal direction 'backward) ;Moving backwards inverts our see heading
+             ((equal direction '(backward))
+              (print "backward!!") ;Moving backwards inverts our heading
               (cond
-                ((equal heading 'N) (setq move_heading 'S))
-                ((equal heading 'S) (setq move_heading 'N))
-                ((equal heading 'W) (setq move_heading 'E))
-                ((equal heading 'E) (setq move_heading 'W))))
-             ((equal direction 'left) ;Moving left heading mappings
+                ((equal heading '(N)) (setq move_heading 'S))
+                ((equal heading '(S)) (setq move_heading 'N))
+                ((equal heading '(W)) (setq move_heading 'E))
+                ((equal heading '(E)) (setq move_heading 'W))))
+             ((equal direction '(left))
+              (print "left!!") ;Moving left heading mappings
               (cond
-                ((equal heading 'N) (setq move_heading 'W))
-                ((equal heading 'S) (setq move_heading 'E))
-                ((equal heading 'W) (setq move_heading 'S))
-                ((equal heading 'E) (setq move_heading 'N))))
-             ((equal direction 'right)
+                ((equal heading '(N)) (setq move_heading 'W))
+                ((equal heading '(S)) (setq move_heading 'E))
+                ((equal heading '(W)) (setq move_heading 'S))
+                ((equal heading '(E)) (setq move_heading 'N))))
+             ((equal direction '(right))
+              (print "right!!")
               (cond
-                ((equal heading 'N) (setq move_heading 'E))
-                ((equal heading 'S) (setq move_heading 'W))
-                ((equal heading 'W) (setq move_heading 'N))
-                ((equal heading 'E) (setq move_heading 'S)))))
+                ((equal heading '(N)) (setq move_heading 'E))
+                ((equal heading '(S)) (setq move_heading 'W))
+                ((equal heading '(W)) (setq move_heading 'N))
+                ((equal heading '(E)) (setq move_heading 'S)))))
            ;Look at the board at determined heading
-           ;(print (see board move_heading))
-           (print "Hello?"))
-     ((equal action 'nop) (print "Do nothing")))))
+           (format t "Move block Heading: ~A~%Move block value: ~D" move_heading (see board move_heading))
+           (cond
+             ((equal (see board move_heading) 0) ;The proposed move is allowed
+              (print "Made it here")
+              (update_world move_heading)
+              (update_agent))
+             ((equal (see board move_heading) 1) ;The proposed move is not allowed
+              (update_agent direction))))
+      (show_board (get_board world_map)))))
+
+
+
 
 ;Returns the board value directly in front of the agent, based on its heading.
 ;By manipulting calls to this we can determine where we are moving and what it
@@ -86,6 +96,37 @@
     ((equal heading 'S) (aref board (+ x 1) (+ y 2)))
     ((equal heading 'E) (aref board (+ x 2) (+ y 1)))
     ((equal heading 'W) (aref board x (+ y 1))))))
+
+
+(defun update_agent (&optional bump)
+  (print "start update agent")
+  (setf (agent_front_sensor_acc agent1) (see (get_board world_map)))
+  (if bump
+    (cond ((equals bump '(backward) (setf (agent_rear_bump_acc world_map) 1)))
+      ((equals bump '(forward) (setf (agent_front_bump_acc world_map) 1)))
+      ((equals bump '(left) (setf (agent_left_bump_acc world_map) 1)))
+      ((equals bump '(right) (setf (agent_right_bump_acc world_map) 1))))))
+
+
+(defun update_world (move_heading)
+  (print "start update world")
+  (let ((x (nth 0 (agent_bearing_acc world_map)))
+        (y (nth 1 (agent_bearing_acc world_map)))
+        (heading (nth 2 (agent_bearing_acc world_map))))
+    (cond ((equal move_heading 'N)
+           ;(setq new_vals (list (+ x 1) y 'N))
+           (setf (agent_bearing_acc world_map) (list x (- y 1) heading)))
+          ((equal move_heading 'S)
+           (setf (agent_bearing_acc world_map) (list x (+ y 1) heading)))
+          ((equal move_heading 'E)
+           (setf (agent_bearing_acc world_map) (list (+ x 1) y heading)))
+          ((equal move_heading 'W)
+           (setf (agent_bearing_acc world_map) (list (- x 1) y heading))))
+    (update_board x y)))
+
+
+
+
 
 
 
