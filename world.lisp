@@ -1,25 +1,3 @@
-;;;show_board is in here for now, will be moved to simulator laterrrrr
-;--------------------------------------------------------------------
-;Uses format (which is pretty awesome) to print out the game board
-;Obstacles/Walls are X's, the goal is a G, and the agent is an A
-;This function prints the board, axis labels and directional heading.
-(defun show_board (board heading)
-  (format t "~%")
-  (loop for i below (- (first (array-dimensions board)) 2) do
-    (format t "~7T~D~0,3@T"  i))
-  (format t "~%")
-  (loop for i below (first (array-dimensions board)) do
-    (if (and (> i 0) (< i (- (first (array-dimensions board)) 1)))
-      (format t "~D~3T" (- i 1)) ;if true
-      (format t "~3T")) ;else
-    (loop for j below  (second (array-dimensions board)) do
-      (let ((cell (aref board j i)))
-        (format t "~[   ~; X ~; G ~; A ~]" cell)))
-    (format t "~%"))
-  (format t "~4TAgent Heading: ~a~%" heading))
-
-    ;(format t "~V:@<Agent Heading: -> ~%~>" 40) ;Dynamic centering later
-;--------------------------------------------------------------------------
 ;;;About our world:
 ;;;A 0 denotes an open space (format displays it as such)
 ;;;A 1 denotes a wall/obstacle (format dispays it as X)
@@ -48,7 +26,6 @@
    (board
     :accessor get_board)))
 
-
 ;Initializes a board for the world, populates agent and goal
 ;This is called as part of the world object initialization
 (defmethod initialize-instance :after ((world world) &key)
@@ -73,10 +50,22 @@
     (setf (slot-value world 'board) board)
     (show_board board (last agent_bearing)))) ;Print out the game board
 
+;Updates the world object with its new values
+(defun update_world (&optional move_type move_heading)
+  (sleep 1) ;Sleep so game doesnt spam
+  (let ((x (nth 0 (agent_bearing_acc world_map)))
+        (y (nth 1 (agent_bearing_acc world_map)))
+        (heading (nth 2 (agent_bearing_acc world_map))))
+    (cond
+      ((equal move_type 'turn) ;If we are turning notify world of new agent heading
+       (setf (agent_bearing_acc world_map) (list x y move_heading)))
+      ((equal move_type 'move) ;If we are moving get new bearings and update world_map
+       (setf (agent_bearing_acc world_map) (get_new_bearings x y move_heading heading))))
+   (print (agent_bearing_acc world_map))
+   (update_board x y (agent_bearing_acc world_map)))) ;Update the board with the new values
 
-
+;Edits the board and saves it to the world object
 (defun update_board (old_x old_y new_bearing)
-  (print "updating board")
   (let ((new_board (get_board world_map)))
     ;Overwrite the old agent position
     (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0)
@@ -87,37 +76,22 @@
     ;Draw the board
     (show_board new_board (last new_bearing))))
 
+;Uses format (which is pretty awesome) to print out the game board
+;Obstacles/Walls are X's, the goal is a G, and the agent is an A
+;This function prints the board, axis labels and directional heading.
+(defun show_board (board heading)
+  (format t "~%")
+  (loop for i below (- (first (array-dimensions board)) 2) do
+    (format t "~7T~D~0,3@T"  i))
+  (format t "~%")
+  (loop for i below (first (array-dimensions board)) do
+    (if (and (> i 0) (< i (- (first (array-dimensions board)) 1)))
+      (format t "~D~3T" (- i 1)) ;if true
+      (format t "~3T")) ;else
+    (loop for j below  (second (array-dimensions board)) do
+      (let ((cell (aref board j i)))
+        (format t "~[   ~; X ~; G ~; A ~]" cell)))
+    (format t "~%"))
+  (format t "~4TAgent Heading: ~a~%" heading))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;Bottom comment so my neck stops hurting ;)
+    ;(format t "~V:@<Agent Heading: -> ~%~>" 40) ;Dynamic centering later

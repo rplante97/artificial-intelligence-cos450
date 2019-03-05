@@ -14,7 +14,13 @@
      :reader agent_name)
     (agent_progam_name
      :initform (defvar agent_prog)
-     :reader agent_program_name)))
+     :reader agent_program_name)
+    (same_bump_count
+     :initform 0
+     :accessor same_bump_count_acc)
+    (last_bump_type
+     :initform 0
+     :accessor last_bump_type)))
 
 ;Dynamic defvar stuff later
 ;(defmethod initialize-instance :after ((simulator simulator) &key)
@@ -23,9 +29,7 @@
 ;;;Starts simulation, calls to agent agent/methods so they start moving etc
 (defmethod start_simulation (simulator)
   (print "Simulation starting!")
-  (reflex_agent agent_prog))
-
-
+  (move agent_prog))
 
 ;;;Checks move to see if it is allowed
 ;;;Returns sense values to agent
@@ -40,42 +44,28 @@
         (move_heading 'N) ;Init the move heading
         (move_path 0)) ;Init move path
     (setq move_heading (get_move_heading heading direction)) ;Get cardinal direction of move
+    (print move_heading)
     (setq move_path (see board move_heading)) ;Determine if move path is blocked by obstacle/wall
+    (print move_path)
     (cond
       ((equal action 'move)
+       (print "In action move")
        (cond
          ((equal move_path 0) ;Move possible!
-          (update_world action move_heading)) ;Move agent in world (update world), update agent afterwards
+          (update_world action move_heading) ;Move agent in world (update world)
+          (update_agent)) ;Update agents sensor values
          ((equal move_path 1) ;Move blocked :(
-          (print "not implemented")))) ;update world for draw function (no change), update agent afterwards
+          (print "move blocked")
+          (update_world) ;This basically just draws the board again
+          (update_agent direction)))) ;Update agent sensor with bump direction
       ((equal action 'turn) ;We can always turn, this serves to update world/front_sensor
        (cond
          ((equal move_path 0)
-          (print "not implemented")) ;update world with new heading, update agent front_sensor
+          (update_world action move_heading) ;update worlds agent heading value
+          (update_agent)) ;update front sensor
          ((equal move_path 1)
-          (print "not implemented"))))))) ;update world with new heading, update agent front_sensor
-
-
-      ;;;Map direction we are moving/turning to a cardinal direction
-
-              ;Should refactor this
-;       (let ((tmp (agent_bearing_acc world_map)))
-;         (setq tmp (list (first tmp) (nth 1 tmp) move_heading))
-;         (print tmp)
-;         (setf (agent_bearing_acc world_map) tmp)
-;         (update_agent)
-;         (update_board (first tmp) (nth 1 tmp))))))
-;  move(reflex_agent))
-;(cond
-;  ((equal (see board move_heading) 0) ;The proposed move is allowed
-;   (print "Made it here")
-;   (update_world move_heading)
-;   (update_agent))
-;  ((equal (see board move_heading) 1) ;The proposed move is not allowed
-;   (update_agent direction)))
-
-
-
+          (update_world action move_heading)
+          (update_agent)))))))
 
 ;Obtains the cardinal direction with which our agent will be moving/turning from
 ;the relative move direction given by the agent_program
@@ -114,9 +104,6 @@
        ((equal current_heading '(E))
         (return-from get_move_heading 'S))))))
 
-
-
-
 ;Returns the board value directly in front of the agent, based on its heading.
 ;By manipulting calls to this we can determine where we are moving and what it
 ;will look like after
@@ -136,46 +123,7 @@
     ((equal heading 'E) (aref board (+ x 2) (+ y 1)))
     ((equal heading 'W) (aref board x (+ y 1))))))
 
-
-(defun update_agent (&optional bump)
-  (print "start update agent")
-  (print bump)
-  (setf (agent_front_sensor_acc agent1) (see (get_board world_map)))
-  (if bump
-    (cond
-      ((equal bump '(backward)) (setf (agent_rear_bump_acc agent1) 1))
-      ((equal bump '(forward)) (setf (agent_front_bump_acc agent1) 1))
-      ((equal bump '(left)) (setf (agent_left_bump_acc agent1) 1))
-      ((equal bump '(right)) (setf (agent_right_bump_acc agent1) 1)))
-    (reset_bump_sensors)))
-
-
-
-(defun update_world (move_type move_heading)
-  (let ((x (nth 0 (agent_bearing_acc world_map)))
-        (y (nth 1 (agent_bearing_acc world_map)))
-        (heading (nth 2 (agent_bearing_acc world_map))))
-    (cond
-      ((equal move_type 'turn) ;If we are turning notify world of new agent heading
-       (setf (agent_bearing_acc world_map) (list x y move_heading)))
-      ((equal move_type 'move) ;If we are moving get new bearings and update world_map
-       (print "Test")
-       (setf (agent_bearing_acc world_map) (get_new_bearings x y move_heading heading))))
-   (print (agent_bearing_acc world_map))
-   (update_board x y (agent_bearing_acc world_map)))) ;Update the board with the new values
-
-
-    ;(cond ((equal move_heading 'N)
-    ;       ;(setq new_vals (list (+ x 1) y 'N))
-    ;       (setf (agent_bearing_acc world_map) (list x (- y 1) heading)))
-    ;      ((equal move_heading 'S)
-    ;       (setf (agent_bearing_acc world_map) (list x (+ y 1) heading)))
-    ;      ((equal move_heading 'E)
-    ;       (setf (agent_bearing_acc world_map) (list (+ x 1) y heading)))
-    ;      ((equal move_heading 'W)
-    ;       (setf (agent_bearing_acc world_map) (list (- x 1) y heading))))
-    ;(update_board x y)))
-
+;Returns the new agent bearings for the simulate move function
 (defun get_new_bearings (current_x current_y move_heading curr_heading)
   (cond
     ((equal move_heading 'N)
@@ -187,30 +135,33 @@
     ((equal move_heading 'E)
      (return-from get_new_bearings (list (+ current_x 1) current_y curr_heading)))))
 
+;Logs the result of a game
+;(defun log_game (board)
+;  (todo))
+
+;Called on bump. Counts consecutive number of bumps on the same sensor.
+(defun bump_counter (bump)
+  (let ((count (same_bump_count_acc simulation))
+        (bump_type (last_bump_type simulation)))
+    (cond
+      ((> count 0)
+       (if (equal bump bump_type)
+         (incf count)
+         (setq count 0)))
+      ((equal count 0)
+       (incf count)
+       (setq bump_type bump)
+       (print count)
+       (print bump_type)))
+    (print "got here")
+    (setf (same_bump_count_acc simulation) count)
+    (setf (last_bump_type simulation) bump_type)
+    (print (same_bump_count_acc simulation))))
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;resrt
+;Terminates a game that would otherwise not exit
+(defun terminate_game ()
+   (print "terminating!")
+   (signal 'quit nil))

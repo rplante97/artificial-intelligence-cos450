@@ -32,3 +32,16 @@
   (setf (agent_front_bump_acc agent1) 0)
   (setf (agent_left_bump_acc agent1) 0)
   (setf (agent_right_bump_acc agent1) 0))
+
+(defun update_agent (&optional bump)
+  (print bump)
+  (setf (agent_front_sensor_acc agent1) (see (get_board world_map)))
+  (if bump (bump_counter bump))
+  (if bump
+    (cond
+      ((equal bump '(backward)) (setf (agent_rear_bump_acc agent1) 1))
+      ((equal bump '(forward)) (setf (agent_front_bump_acc agent1) 1))
+      ((equal bump '(left)) (setf (agent_left_bump_acc agent1) 1))
+      ((equal bump '(right)) (setf (agent_right_bump_acc agent1) 1)))
+    (reset_bump_sensors)) ;If no bump set our sensors back to 0
+  (move agent_prog))
