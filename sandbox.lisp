@@ -7,7 +7,6 @@
   (defparameter simulation 0)
   (load "simulator.lisp")
   (setq simulation (make-instance 'simulator))
-  (print "Simulator started")
   (load "world.lisp")
   (load "agent.lisp")
   (load "agent_program.lisp")
@@ -17,12 +16,12 @@
 
   ;;;Initalizes an agent and agent program
   (setq agent1 (make-instance 'agent))
-  (setq agent_prog (make-instance 'reflex_agent))
+  (setq agent_prog (make-instance 'agent_program))
 
   ;;;At this point, all the initialization we need to do is done. Start the sim
-  (start_simulation simulation)
-  ;(update_agent)
+  ;(start_simulation simulation)
+  (reflex_agent agent_prog)
 
-  (describe world_map)
-  (describe agent1)
+  ;(describe world_map)
+  ;(describe agent1)
   (print "Done"))

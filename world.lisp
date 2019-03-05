@@ -1,7 +1,8 @@
 ;;;show_board is in here for now, will be moved to simulator laterrrrr
 ;--------------------------------------------------------------------
-;;;Print 2D array function, some of this is taken from stack overflow
-;;;REFACTOR
+;Uses format (which is pretty awesome) to print out the game board
+;Obstacles/Walls are X's, the goal is a G, and the agent is an A
+;This function prints the board, axis labels and directional heading.
 (defun show_board (board heading)
   (format t "~%")
   (loop for i below (- (first (array-dimensions board)) 2) do
@@ -19,12 +20,15 @@
 
     ;(format t "~V:@<Agent Heading: -> ~%~>" 40) ;Dynamic centering later
 ;--------------------------------------------------------------------------
-;;;;;About our world:
-;;;;;A 0 denotes an open space (format displays it as such)
-;;;;;A 1 denotes a wall/obstacle (format dispays it as X)
-;;;;;A 2 denotes an agent (format dispays it as A)
-;;;;;A 3 denotes the goal (format dispays it as G)
+;;;About our world:
+;;;A 0 denotes an open space (format displays it as such)
+;;;A 1 denotes a wall/obstacle (format dispays it as X)
+;;;A 2 denotes an agent (format dispays it as A)
+;;;A 3 denotes the goal (format dispays it as G)
+
 ;;;World class
+;;;Stores world size, number of obstacles, the goal and agent coordinates, the agent bearing
+;;;and a map of the entire world
 (defclass world ()
   ((size
     :initarg :size
@@ -46,8 +50,9 @@
 
 
 ;Initializes a board for the world, populates agent and goal
+;This is called as part of the world object initialization
 (defmethod initialize-instance :after ((world world) &key)
-  (let ((size (slot-value world 'size))
+  (let ((size (slot-value world 'size)) ;Need world object init values to generate board
         (num_obstacles (slot-value world 'num_obstacles))
         (goal_coordinate (slot-value world 'goal_coordinate))
         (agent_bearing (slot-value world 'agent_bearing))
@@ -66,23 +71,20 @@
     (setf (aref board (+ (nth 0 goal_coordinate) 1) (+ (nth 1 goal_coordinate) 1)) 2) ;Goal
     (setf (aref board (+ (nth 0 agent_bearing) 1) (+ (nth 1 agent_bearing) 1) ) 3) ;Agent
     (setf (slot-value world 'board) board)
-    (show_board board (last agent_bearing))))
+    (show_board board (last agent_bearing)))) ;Print out the game board
 
 
 
-;;(defmethod bump ((self world))
-  ;;())
-
-(defun update_board (old_x old_y &optional overwrite)
+(defun update_board (old_x old_y new_bearing)
   (print "updating board")
-  (let ((new_board (get_board world_map))
-        (new_bearing (agent_bearing_acc world_map)))
+  (let ((new_board (get_board world_map)))
+    ;Overwrite the old agent position
+    (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0)
     ;Populate the new agent position
     (setf (aref new_board (+ (nth 0 new_bearing) 1) (+ (nth 1 new_bearing) 1) ) 3)
-    ;Get rid of the old agent position
-    (if overwrite
-      (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0))
+    ;Update the world object with the new board
     (setf (get_board world_map) new_board)
+    ;Draw the board
     (show_board new_board (last new_bearing))))
 
 

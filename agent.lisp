@@ -1,6 +1,6 @@
 ;;;;;Not much goes on here! Provides implementation of the agent class
-;;;;;Essentially just some bump detectors and a forward sensor. The intersting
-;;;;;stuff happens in the various agent_program files!
+;;;;;Essentially just some bump detectors and a forward sensor. The interesting
+;;;;;stuff happens in the various agent_program methods!
 
 ;Agent class with sensor + bump attributes
 (defclass agent ()
