@@ -68,7 +68,7 @@
 (defun update_board (old_x old_y new_bearing)
   (let ((new_board (get_board world_map)))
     ;Overwrite the old agent position
-    (setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0)
+    ;(setf (aref new_board (+ old_x 1) (+ old_y 1) ) 0)
     ;Populate the new agent position
     (setf (aref new_board (+ (nth 0 new_bearing) 1) (+ (nth 1 new_bearing) 1) ) 3)
     ;Update the world object with the new board

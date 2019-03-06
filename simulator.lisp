@@ -4,7 +4,6 @@
 ;;;then it should return the apppriate sense precepts to the agent
 ;;;it should then receive the agents intended action and simulate the result
 ;;;(aka update world, update precepts, etc.)
-
 (defclass simulator ()
    ((world_name
      :initform (defvar world_map)

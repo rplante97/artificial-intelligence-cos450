@@ -17,3 +17,17 @@
     (if (= front_sensor 0)
      (simulate_move '(move forward))
      (simulate_move '(move left)))))
+
+(defclass model_agent ()
+  ())
+
+;(defmethod move (model_agent))
+
+(defclass hill_climbing_agent()
+  ())
+
+(defclass search_bfs_agent()
+  ())
+
+(defclass search_aStar_agent()
+  ())

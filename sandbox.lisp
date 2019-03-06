@@ -6,13 +6,13 @@
   ;General setup
   (defparameter simulation 0)
   (load "simulator.lisp")
-  (setq simulation (make-instance 'simulator))
   (load "world.lisp")
   (load "agent.lisp")
   (load "agent_program.lisp")
+  (setq simulation (make-instance 'simulator))
 
   ;;;Generates map, agent, goal, and obstacles
-  (setq world_map (make-instance 'world :size 7 :agent_bearing '(3 1 S) :goal_coordinate '(6 0)))
+  (setq world_map (make-instance 'world :size 25 :num_obstacles 0 :agent_bearing '(3 1 S) :goal_coordinate '(6 0)))
 
   ;;;Initalizes an agent and agent program
   (setq agent1 (make-instance 'agent))
