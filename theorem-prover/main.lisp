@@ -13,6 +13,7 @@
        (or (not (grow ?h ?i)) (own ?h ?sk_hi))
        (or (not (grow ?j ?k)) (garden ?sk_jk))
       ;fake axioms for testing
+      (grow gord pail)
        ))
     (t (error "Error: Invalid Domain!"))))
 
@@ -45,9 +46,8 @@
     (strip_logic (rest axiom)))
   (t axiom)))
 
-(defun search_domain (domain search_clause)
-  (let ((count 0)
-        (resolve_list '())
+(defun get_potential_resolutions (domain search_clause)
+  (let ((resolve_list '())
         (sublist '())
         (tmp '())
         (search_function (first search_clause))) ;TODO: allow this to properly search 'NOT function'
@@ -62,44 +62,83 @@
              ;checks to see if any of sub-axioms can match with search_clause
              ((equal search_function (first tmp)) ;see search_function comment
                (setq sublist (append sublist (list i))) ;append index
-               (setq sublist (append sublist (rest (nth i domain)))))
-            );END COND
+               (setq sublist (append sublist (list j)))
+               (setq sublist (append sublist (rest (nth i domain))))))
              (setq resolve_list (append resolve_list (list sublist)))
-             (setq sublist '())
-          );END LOOP
-
-        );END COND TEST1
+             (setq sublist '())))
        ((equal search_function (first (nth i domain)))
         (setq sublist (append sublist (list i)))
-        (setq sublist (append sublist (nth i domain)))
+        (setq sublist (append sublist (list 1))) ;dummy sublist index
+        (setq sublist (append sublist (list(nth i domain))))
         (setq resolve_list (append resolve_list (list sublist)))
-        (setq sublist '())
-       );END COND TEST2
-        );END COND
+        (setq sublist '())))) ;end loop
+    ;returns list of list of axioms and their index that have search function
+    ;match
+    (remove nil resolve_list)))
 
-      ;(print (search_domain (first (strip_logic (nth i domain))) search_clause))
-      ) ;end loop
-   ;(format t "~{( ~{~S ~})~%~}" resolve_list)
-  ; (print resolve_list)
-    resolve_list);end let
-  )
+(defun get_bindings (current_branch theory)
+  (let ((arguments (rest(flatten theory)))
+        bindings)
+    (setq current_branch (rest current_branch));strip out master index
+    (setq current_branch (rest (nth (first current_branch) current_branch))) ; Grab correct sublist
+    (loop for i from 0 to (- (list-length current_branch) 1) do
+      (cond
+        ((variable? (nth i current_branch)) ;SEARCH BRANCH ARG IS VARIABLE
+         (setq bindings (append (list (nth i arguments) (nth i current_branch))))
+              )
+        (t ;SEARCH BRANCH ARG IS NOT VARIABLE
+         (cond
+           ((variable? (nth i arguments)) ;If base arg is a variable just bind as normal
+            (setq bindings (append (list (nth i arguments) (nth i current_branch))))
+            )
+          ;If branch arg is ALSO not a varible ensure that branch arg and base
+          ;arg match
+          (t
+           (if (equal (nth i arguments) (nth i current_branch))
+            (print "All good!") ;all good, dont need to do anything
+            (error "Argument mismatch while binding!")
+             )
+           )
+           )
+         )
+        ) ;end cond
+      );end loop
+    bindings);end let
+      )
 
-(unless (fboundp 'string-append)
-  (defmacro string-append (&rest strings)
-    `(concatenate 'string ,@strings)))
+(defun resolve (domain theory)
+  (let ((search_clause (flatten theory))
+        (current_branch)
+        (next_branch))
+    ;returns list of possible resolution paths, we always resolve with the first
+    ;path (not a great heuristic, but easier coding wise)
+    (setq current_branch (first (get_potential_resolutions domain theory)))
+    (get_bindings current_branch search_clause) ;Nothing to do for these atm
+    ;get_bindings successful return means we can preform our resolve
 
-;Using the axiom we are trying to prove find any axioms in the domain that
-;contain a negation of the axiom and return a list
-(defun get_potential_resolutions (axiom)
-  (let ((search_clause (strip_logic (flatten axiom))))
-
-  ) ;end let
+    (setq next_branch (remove-nth-element (+ (nth 1 current_branch) 1) current_branch))
+     ;remove used axiom from the domain
+    (setq domain (remove-nth-element (first next_branch) domain))
+    ;(print (rest (rest next_branch)))
+    (resolve domain (rest (rest next_branch)))
+    ) ;end let
 
 )
     ;TODO: ignore beginning or's and not's, then get "function"
 
 ;----------------Sandbox function for testing new code----------------------
+(defun remove-nth-element (nth alist)
+  (cond
+   ((equal nil alist) alist)
+   ((zerop nth) (cdr alist))
+   (t (cons (car alist)
+            (remove-nth-element (- nth 1)
+                                (cdr alist))))))
 
-(defun run ()
 
-  )
+(defun variable? (thing)
+    (or (and (listp thing)
+             (equal (car thing) '*var*))
+        (and (symbolp thing)
+             (equal (char (symbol-name thing) 0)
+                    #\?))))

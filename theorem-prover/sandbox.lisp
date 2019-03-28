@@ -3,9 +3,7 @@
   (let
     ((domain (get_axioms 'garden))
      (theory (get_theory 'true)))
-
-    ;test domain search
-    (search_domain domain theory)
+     (resolve domain theory)
     );end let
 ;(print "END")
   )
