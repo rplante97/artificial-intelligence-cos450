@@ -7,7 +7,7 @@
 ;;;      o newSymbol symbol generator added.  Call is:
 ;;;             (newsymbol <foo>)
 ;;;        where <foo> is a symbol or a string.  A new, unique symbol based
-;;;        on that is returned.  Any trailing numerals are stripped from the 
+;;;        on that is returned.  Any trailing numerals are stripped from the
 ;;;        symbol, and then a new number is appended to make a unique name.
 ; File info/modification history:1 ends here
 
@@ -19,7 +19,7 @@
 ; [[file:~/WebSites/COS470/assignments/rtp/unify.org::*Symbol%20generator%20code][Symbol generator code:2]]
 (defun newSymbol (&optional prefix &key (package) (intern t))
   (with-slots (counterTable) *symbolGenerator*
-   (let (num sym) 
+   (let (num sym)
      (cond
        ((symbolp prefix)
 	;; convert to string, call again:
@@ -32,7 +32,7 @@
 	      (cond
 	       ((setq num (gethash prefix counterTable))
 		;; number exists for this prefix -- new number is just incremented
-		;; one: 
+		;; one:
 		(setq num (1+ num))
 		(setf (gethash prefix counterTable) num))
 	       (t
@@ -40,7 +40,7 @@
 		(setf (gethash prefix counterTable) 1)
 		(setq num 1)))
 	    until (not (find-symbol
-			(setq sym (string-append prefix 
+			(setq sym (string-append prefix
 						 (princ-to-string num))))))
 	;; found one, create the symbol...
 	(setq sym (make-symbol sym))
@@ -104,7 +104,7 @@
     (unify-variable p1 p2 bindings))
    ((variable? p2)
     (unify-variable p2 p1 bindings))
-   ((and (atom p1) (atom p2)) 
+   ((and (atom p1) (atom p2))
     (unify-atoms p1 p2 bindings))
    ((and (listp p1) (listp p2))
     (unify-elements p1 p2 bindings))
@@ -218,7 +218,7 @@
 
 ; [[file:~/WebSites/COS470/assignments/rtp/unify.org::*make-var][make-var:1]]
 (defun make-var (var)
-  (intern (concatenate 'string "?" 
+  (intern (concatenate 'string "?"
 		       (cond
 			((stringp var) var)
 			(t (symbol-name var))))))
@@ -252,7 +252,7 @@
 
 ; [[file:~/WebSites/COS470/assignments/rtp/unify.org::*instantiate-variable][instantiate-variable:2]]
 (defun inst-var (var bindings &optional (depth 0))
-  (loop with deeper-var = nil 
+  (loop with deeper-var = nil
       for binding in bindings
       do
 	(when (member var binding)
@@ -277,7 +277,7 @@
 	;; meaning we haven't found var in bindings at all!  In this case, we
 	;; need to return the variable itself as the value, though noting that
 	;; we haven't found a real binding.
-	(return (values nil 
+	(return (values nil
 			  (if (or (null deeper-var)
 				(<= (car deeper-var) depth))
 			    (list depth var)
