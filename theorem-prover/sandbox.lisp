@@ -1,16 +1,15 @@
+;Goal is listed in CNF as well
+;IF more than one clause in the goal they must therefore be OR'd together
+;This means we just have to prove 1 and disprove the other
+
 (defun run ()
   (load "main.lisp")
+  ;(defvar *count* 0)
   (let
-    ((domain (get_axioms 'garden))
-     (theory (get_theory 'true)))
-     (resolve domain theory)
-    );end let
-;(print "END")
-  )
-
-
-
-(defun test_unify ()
-  (load "unify.lisp")
-  (add-binding ('?a 'cat (list bindings)))
-  )
+    ((axiom_set (get_axiom_set 'garden))
+     (goal (get_goal 'true))
+     (negated_goal))
+     (negate goal)
+    )
+    ;(print "END")
+    )
