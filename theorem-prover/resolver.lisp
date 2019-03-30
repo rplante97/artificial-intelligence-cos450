@@ -95,6 +95,9 @@
        (print "RESOLVE OCCURING INPUTS: ")
        (print "Negated search clause: ")(princ negated_search_clause)
        (print "Potential Resolutions: ")(princ potential_resolutions)
+       (cond ((equal negated_search_clause potential_resolutions)
+         (print "Theorem successfully proven!!! :D")
+         (return)))
        (let ((res_len 0)
              (clause_len 0)
              (tempvar 0))
@@ -108,7 +111,7 @@
          (print "Clause_len: ")(princ clause_len)
          (if (> res_len clause_len)
            (setq tempvar (remove negated_search_clause potential_resolutions :test #'equal))
-           (setq tempvar (remove potential_resolutions negated_search_clause :test #'equal)));else
+           (setq tempvar (negate (remove potential_resolutions negated_search_clause :test #'equal))));else
          (print "tempvar")(princ tempvar)
          (setq goal (remove_nest tempvar)))
 

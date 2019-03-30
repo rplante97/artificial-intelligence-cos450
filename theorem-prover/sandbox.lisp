@@ -7,8 +7,8 @@
   (load "resolver.lisp")
   ;(defvar *count* 0)
   (let
-    ((axiom_set (get_axiom_set 'garden))
-     (goal (get_goal 'true))
+    ((axiom_set (get_axiom_set 'dog))
+     (goal (get_goal 'true2))
      (negated_goal))
      (setq negated_goal (negate goal))
      (resolve axiom_set negated_goal)

@@ -12,9 +12,15 @@
        (or (not (grow ?f ?g)) (own ?f ?g))
        (or (not (grow ?h ?i)) (own ?h ?sk_hi))
        (or (not (grow ?j ?k)) (garden ?sk_jk))
-      ;fake axioms for testing
-      (grow gord pail)
        ))
+   ((equal 'dog axiom_set)
+   '(
+         (or (not (p ?x)) (q ?x))
+         (or (not (q ?x)) (t ?x))
+         (or (not (r ?x)) (t ?x))
+         (p ?a)
+       ))
+
     (t (error "Error: Invalid axiom set!"))))
 
 ;Returns a predefined axiom to prove for a certain axiom set
@@ -22,6 +28,8 @@
   (cond
     ((equal 'true goal)
       '(grow john carrots))
+   ((equal 'true2 goal)
+    '(t ?a))
     (t (error "Error: Invalid goal!"))))
 
 ;Helper function to flatten lists
@@ -84,7 +92,13 @@
   (let ((resolve_list '())
         (sublist '())
         (tmp '())
-        (search_function goal)) ;TODO: allow this to properly search 'NOT function'
+        (search_function goal)) ;TODO: allow this to properly search 'NOT (some function)'
+    ;Searching for negation
+    ;cond((equal (first goal) 'not)
+
+         ;)
+    ;Searching for non-negation
+    ;(t
     (loop for i from 0 to (- (list-length axiom_set) 1) do ;Loop through all axioms
       (cond
         ((some #'listp (nth i axiom_set)) ;Axiom has sublist (OR'd)
